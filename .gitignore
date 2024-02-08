@@ -1,0 +1,13 @@
+# dependencies
+/node_modules
+/.idea
+/dist
+.eslintcache
+./scripts/**/*.xlsx
+*.xlsx
+*.csv
+.DS_Store
+**/.DS_Store
+output.json
+
+/build
