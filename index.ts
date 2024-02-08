@@ -52,6 +52,82 @@ app.post('/search', async (req: Request, res: Response) => {
     }
 });
 
+app.post('/process_data', (request: Request, response: Response) => {
+    let Data = request.body.data;
+    const Operations = request.body.operations;
+    if (Data && Operations) {
+        for (var i = 0; i < Operations.length; i++) {
+            if (Operations[i]['type'] === 'reverse') {
+                if (typeof Data == 'string') {
+                    Data = Data.split('').reverse().join('');
+                } else if (Array.isArray(Data)) {
+                    Data = Data.reverse();
+                } else {
+                    response.status(400).send('Invalid operation for data type');
+                    return;
+                }
+            } else if (Operations[i].type == 'uppercase') {
+                if (typeof Data === 'string') {
+                    Data = Data.toUpperCase();
+                } else {
+                    response.status(400).send('Invalid operation for data type');
+                    return;
+                }
+            } else if (Operations[i].type === 'increment') {
+                if (typeof Data === 'number') {
+                    Data += Operations[i].value;
+                } else if (Array.isArray(Data) && Data.every(item => typeof item === 'number')) {
+                    Data = Data.map(item => item + Operations[i].value);
+                } else {
+                    response.status(400).send('Invalid operation for data type');
+                    return;
+                }
+            } else {
+                response.status(400).send('Unsupported operation');
+                return;
+            }
+        }
+        response.json({ Data });
+    } else {
+        response.status(400).send('Missing data or operations');
+    }
+});
+
+app.get('/fibonacci/:n', (req: Request, res: Response) => {
+    const n = parseInt(req.params.n);
+    if (!Number.isInteger(n) || n < 0) {
+        res.status(400).send('Invalid input');
+        return;
+    }
+
+    let fib = [];
+    fib[0] = 0;
+    fib[1] = 1;
+    for (let i = 2; i <= n; i++) {
+        fib[i] = fib[i - 1] + fib[i - 2];
+    }
+
+    res.json({ result: fib[n] });
+});
+
+app.post('/process', (req: Request, res: Response) => {
+    const d = req.body.d;
+    let r = 0;
+    for (let i = 0; i < d.length; i++) {
+        if (d[i] % 2 === 0) {
+            r += d[i] * 2;
+        } else {
+            r += d[i] * 3;
+        }
+    }
+    res.send(`Result: ${r}`);
+});
+
+app.get('/searchProducts', (req: Request, res: Response) => {
+    const query = req.query.query;
+    res.send(`<p>Search results for: ${query}</p>`);
+});
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
